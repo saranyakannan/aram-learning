@@ -1,0 +1,12 @@
+[
+  { "id": "songs-music", "name": "Songs & Music", "description": "Songs, nursery rhymes, rhythm, and music participation", "icon": "music_note", "sortOrder": 1 },
+  { "id": "language-literacy", "name": "Language & Early Literacy", "description": "Phonics, vocabulary, letters, and early reading", "icon": "menu_book", "sortOrder": 2 },
+  { "id": "math-counting", "name": "Math & Counting", "description": "Counting, numbers, shapes, and early maths", "icon": "calculate", "sortOrder": 3 },
+  { "id": "science-discovery", "name": "Science & Discovery", "description": "Experiments, space, technology, and curiosity", "icon": "science", "sortOrder": 4 },
+  { "id": "nature-animals", "name": "Nature & Animals", "description": "Animals, plants, and the natural world", "icon": "forest", "sortOrder": 5 },
+  { "id": "stories-imagination", "name": "Stories & Imagination", "description": "Stories, bedtime reading, pretend play, and podcasts", "icon": "auto_stories", "sortOrder": 6 },
+  { "id": "social-emotional", "name": "Social-Emotional Learning", "description": "Feelings, friendship, kindness, and getting along", "icon": "favorite", "sortOrder": 7 },
+  { "id": "art-creativity", "name": "Art & Creativity", "description": "Drawing, crafts, and making things", "icon": "palette", "sortOrder": 8 },
+  { "id": "movement-mindfulness", "name": "Movement & Mindfulness", "description": "Dance, yoga, and calm-down activities", "icon": "self_improvement", "sortOrder": 9 },
+  { "id": "everyday-routines", "name": "Everyday Life & Routines", "description": "Daily routines, helping at home, and healthy habits", "icon": "home", "sortOrder": 10 }
+]

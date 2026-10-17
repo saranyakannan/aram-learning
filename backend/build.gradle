@@ -1,0 +1,69 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.16'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.aram'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	googleCloudLibrariesBomVersion = '26.88.1'
+	googleApiClientVersion = '2.9.1'
+	googleApiServicesYoutubeVersion = 'v3-rev20260902-2.0.0'
+}
+
+dependencies {
+	implementation platform("com.google.cloud:libraries-bom:${googleCloudLibrariesBomVersion}")
+
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+	// Firestore client (uses Application Default Credentials)
+	implementation 'com.google.cloud:google-cloud-firestore'
+
+	// YouTube Data API v3 client
+	implementation "com.google.apis:google-api-services-youtube:${googleApiServicesYoutubeVersion}"
+	implementation "com.google.api-client:google-api-client:${googleApiClientVersion}"
+	implementation 'com.google.http-client:google-http-client-gson'
+
+	// BigQuery (analytics export job); version managed by the libraries BOM
+	implementation 'com.google.cloud:google-cloud-bigquery'
+
+	// Verifies Firebase Authentication ID tokens (parent sign-in)
+	implementation 'com.google.firebase:firebase-admin:9.11.0'
+
+	// Gemini on Vertex AI (uses Application Default Credentials)
+	implementation 'com.google.genai:google-genai:1.77.0'
+
+	// Google Agent Development Kit (the Aram Agent's tool loop and, later, sessions)
+	implementation 'com.google.adk:google-adk:1.12.0'
+	implementation 'com.google.adk:google-adk-firestore-session-service:1.12.0'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

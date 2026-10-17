@@ -1,0 +1,381 @@
+[
+  {
+    "appleId": 1013225660,
+    "name": "Ear Snacks",
+    "description": "Songs, silly stories and curious questions for young kids, hosted by a musical duo.",
+    "minAge": 3,
+    "maxAge": 8,
+    "tags": [
+      "music",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1195586628,
+    "name": "Peace Out",
+    "description": "Calm stories with breathing and relaxation exercises to help kids wind down.",
+    "minAge": 3,
+    "maxAge": 8,
+    "tags": [
+      "emotions",
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1246443751,
+    "name": "Circle Round",
+    "description": "Folktales from around the world, retold as short audio stories about kindness and courage.",
+    "minAge": 4,
+    "maxAge": 10,
+    "tags": [
+      "bedtime-stories",
+      "emotions",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 719585944,
+    "name": "Story Pirates",
+    "description": "Stories written by kids, performed by actors and comedians.",
+    "minAge": 4,
+    "maxAge": 10,
+    "tags": [
+      "bedtime-stories",
+      "art",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1233834541,
+    "name": "Wow in the World",
+    "description": "Short, funny science and technology stories for curious kids and their grown-ups.",
+    "minAge": 5,
+    "maxAge": 10,
+    "tags": [
+      "science",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1103320303,
+    "name": "But Why: A Podcast for Curious Kids",
+    "description": "Experts answer questions sent in by kids about how the world works.",
+    "minAge": 5,
+    "maxAge": 12,
+    "tags": [
+      "science",
+      "nature",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 703720228,
+    "name": "Brains On!",
+    "description": "A science podcast for kids that answers their questions with experts and sound effects.",
+    "minAge": 6,
+    "maxAge": 12,
+    "tags": [
+      "science",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 948976028,
+    "name": "Stories Podcast",
+    "description": "A bedtime show of read-aloud stories for kids of all ages.",
+    "minAge": 3,
+    "maxAge": 10,
+    "tags": [
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1479312117,
+    "name": "Eat Your Spanish",
+    "description": "A musical introduction to Spanish, perfect for little ones.",
+    "minAge": 2,
+    "maxAge": 8,
+    "tags": [
+      "phonics-reading",
+      "music",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1523341200,
+    "name": "Akili and Me",
+    "description": "Fun songs and stories that teach valuable lessons and language.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "music",
+      "phonics-reading",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1203289615,
+    "name": "Be Calm on Ahway Island",
+    "description": "Bedtime stories and meditations with positive messages.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "bedtime-stories",
+      "emotions",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1474983385,
+    "name": "Best Day Yet: Affirmations, Meditations, & Mindfulness for Kids",
+    "description": "Growth mindset, meditation and breath work for children.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "emotions",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1353418080,
+    "name": "Chompers",
+    "description": "A fun and clever show that makes tooth-brushing fun.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "emotions",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1561861786,
+    "name": "Goodnight, World!",
+    "description": "Relaxing stories that help with sleep and emotional regulation.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "bedtime-stories",
+      "emotions",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1601165791,
+    "name": "Lingokids: Music to Our Ears",
+    "description": "Catchy educational songs that help preschoolers learn.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "music",
+      "phonics-reading",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1567336024,
+    "name": "Lingokids: Stories for Kids",
+    "description": "Short and sweet educational stories on diverse topics.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "bedtime-stories",
+      "phonics-reading",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1560907375,
+    "name": "Little Kids, Big Hearts",
+    "description": "Helps younger kids develop social and emotional skills.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "emotions",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1564105312,
+    "name": "Meet the Alpha Beats",
+    "description": "Little ones learn their ABCs through fun and silly music.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "music",
+      "phonics-reading",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1565581033,
+    "name": "Quentin and Alfie's ABC Adventures",
+    "description": "Stories, songs and fun in an early literacy show.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "phonics-reading",
+      "music",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1506815544,
+    "name": "Thomas & Friends Storytime",
+    "description": "Adventurous trains learn lessons while working and playing.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1712159747,
+    "name": "What's Poppin' Penny?",
+    "description": "Sweet and clear lessons about grief, family and safety.",
+    "minAge": 3,
+    "maxAge": 9,
+    "tags": [
+      "emotions",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1367299937,
+    "name": "Imagine This",
+    "description": "Scientists answer kids' questions and inspire curiosity.",
+    "minAge": 4,
+    "maxAge": 10,
+    "tags": [
+      "science",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1450820162,
+    "name": "Molly of Denali",
+    "description": "An authentic, diverse and fun prequel to the TV series.",
+    "minAge": 4,
+    "maxAge": 10,
+    "tags": [
+      "nature",
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1516025992,
+    "name": "African Folktales with Miss Jo Jo",
+    "description": "Traditional African stories for young kids with strong values.",
+    "minAge": 5,
+    "maxAge": 11,
+    "tags": [
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1578971025,
+    "name": "Cuentos Increíbles",
+    "description": "Imaginative Spanish-language stories that teach valuable lessons.",
+    "minAge": 5,
+    "maxAge": 11,
+    "tags": [
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1408102830,
+    "name": "Earth Rangers",
+    "description": "A fun wildlife show that shares animal facts and promotes conservation.",
+    "minAge": 5,
+    "maxAge": 11,
+    "tags": [
+      "nature",
+      "science",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1702015351,
+    "name": "Jamming on the Job",
+    "description": "A positive introduction to careers through music and exploration.",
+    "minAge": 5,
+    "maxAge": 11,
+    "tags": [
+      "music",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1540647495,
+    "name": "Little Stories Everywhere",
+    "description": "Imaginative tales that engage and show integrity.",
+    "minAge": 5,
+    "maxAge": 11,
+    "tags": [
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1583090106,
+    "name": "Melon's House Party",
+    "description": "A fun musical show with sweet social-emotional lessons.",
+    "minAge": 5,
+    "maxAge": 11,
+    "tags": [
+      "music",
+      "emotions",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1588105293,
+    "name": "PJ Library Presents: Afternoons with Mimi",
+    "description": "A sweet story show celebrating family and Jewish traditions.",
+    "minAge": 5,
+    "maxAge": 11,
+    "tags": [
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1652556979,
+    "name": "The Peepkins",
+    "description": "Adventure stories with singing and fun for the whole family.",
+    "minAge": 5,
+    "maxAge": 11,
+    "tags": [
+      "bedtime-stories",
+      "music",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1703255582,
+    "name": "Disney Frozen: Forces of Nature",
+    "description": "Beloved Frozen characters on new adventures about teamwork.",
+    "minAge": 6,
+    "maxAge": 12,
+    "tags": [
+      "bedtime-stories",
+      "podcasts"
+    ]
+  },
+  {
+    "appleId": 1706929283,
+    "name": "Sound Detectives",
+    "description": "A fun mystery show by LeVar Burton that focuses on active listening.",
+    "minAge": 6,
+    "maxAge": 12,
+    "tags": [
+      "science",
+      "podcasts"
+    ]
+  }
+]

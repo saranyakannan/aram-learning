@@ -1,0 +1,8 @@
+# Same runtime image as Dockerfile, but packages a jar built on the host (./gradlew bootJar).
+# Used when the build stage cannot download Gradle inside Docker (blocked or slow network).
+FROM eclipse-temurin:17-jre-jammy
+WORKDIR /app
+COPY build/libs/*.jar app.jar
+ENV JAVA_OPTS=""
+EXPOSE 8080
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

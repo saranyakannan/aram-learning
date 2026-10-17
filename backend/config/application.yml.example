@@ -1,0 +1,18 @@
+# Local settings for running the backend. Copy this file to `application.yml` in this same folder
+# (that copy is git-ignored). Spring Boot loads ./config/application.yml automatically when you
+# run `./gradlew bootRun` from backend/, and it overrides the defaults in src/main/resources.
+aram:
+  firestore:
+    # The Google Cloud project that holds the Firestore database. Set it explicitly: if left blank
+    # the client silently uses whichever project `gcloud` has active.
+    project-id: your-gcp-project-id
+  youtube:
+    # A YouTube Data API v3 key, restricted to that API, created in the same project.
+    api-key: your-youtube-api-key
+  # Analytics export (BigQuery). Only used when you run the export job (see the README, "Analytics").
+  # Generate the key once with:  openssl rand -base64 48   and keep it secret (Secret Manager in production).
+  # export:
+  #   hmac-key: your-long-random-secret
+  # Similarity-based suggestions (decision record 0008). Off unless set.
+  # ml:
+  #   blend-enabled: true

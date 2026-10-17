@@ -1,0 +1,284 @@
+[
+  {
+    "id": "khan-academy-kids",
+    "name": "Khan Academy Kids",
+    "category": "Early Learning",
+    "description": "Early literacy, math, language, social-emotional learning, stories, and creative activities.",
+    "minAge": 2,
+    "maxAge": 8,
+    "youtubeHandle": "@khanacademykids",
+    "tags": [
+      "math",
+      "phonics-reading",
+      "emotions"
+    ]
+  },
+  {
+    "id": "scishow-kids",
+    "name": "SciShow Kids",
+    "category": "Science",
+    "description": "Fun, curious science exploration for young minds.",
+    "minAge": 3,
+    "maxAge": 8,
+    "youtubeHandle": "@SciShowKids",
+    "tags": [
+      "science",
+      "nature"
+    ]
+  },
+  {
+    "id": "sesame-street",
+    "name": "Sesame Street",
+    "category": "Early Learning",
+    "description": "Early-learning songs, stories, letters, numbers, and social-emotional learning.",
+    "minAge": 1,
+    "maxAge": 5,
+    "youtubeHandle": "@sesamestreet",
+    "tags": [
+      "phonics-reading",
+      "math",
+      "emotions",
+      "music"
+    ]
+  },
+  {
+    "id": "natgeo-kids",
+    "name": "National Geographic Kids",
+    "category": "Nature & Animals",
+    "description": "Animal facts, nature, science, and exploration for curious kids.",
+    "minAge": 3,
+    "maxAge": 8,
+    "youtubeHandle": "@NatGeoKids",
+    "tags": [
+      "nature",
+      "science"
+    ]
+  },
+  {
+    "id": "super-simple-songs",
+    "name": "Super Simple Songs",
+    "category": "Songs & Music",
+    "description": "Simple songs, nursery rhymes, movement activities, and early-learning concepts.",
+    "minAge": 0,
+    "maxAge": 4,
+    "youtubeHandle": "@SuperSimpleSongs",
+    "tags": [
+      "music"
+    ]
+  },
+  {
+    "id": "ms-rachel",
+    "name": "Ms. Rachel",
+    "category": "Language & Early Learning",
+    "description": "Songs, nursery rhymes, gestures, vocabulary, and early language development.",
+    "minAge": 0,
+    "maxAge": 3,
+    "youtubeHandle": "@msrachel",
+    "tags": [
+      "music",
+      "phonics-reading"
+    ]
+  },
+  {
+    "id": "caities-classroom",
+    "name": "Caitie's Classroom",
+    "category": "Early Learning",
+    "description": "Songs, stories, crafts, science, and playful preschool learning.",
+    "minAge": 2,
+    "maxAge": 5,
+    "youtubeHandle": "@SuperSimplePlay",
+    "tags": [
+      "crafts",
+      "music",
+      "science"
+    ]
+  },
+  {
+    "id": "numberblocks",
+    "name": "Numberblocks",
+    "category": "Math",
+    "description": "Playful animated adventures that introduce numbers, counting, and early math concepts.",
+    "minAge": 2,
+    "maxAge": 6,
+    "youtubeHandle": "@Numberblocks",
+    "tags": [
+      "math"
+    ]
+  },
+  {
+    "id": "alphablocks",
+    "name": "Alphablocks",
+    "category": "Phonics & Literacy",
+    "description": "Animated characters introduce letter sounds, phonics, blending, and early reading.",
+    "minAge": 3,
+    "maxAge": 6,
+    "youtubeHandle": "@officialalphablocks",
+    "tags": [
+      "phonics-reading"
+    ]
+  },
+  {
+    "id": "daniel-tigers-neighborhood",
+    "name": "Daniel Tiger's Neighborhood",
+    "category": "Social-Emotional Learning",
+    "description": "Stories and songs that help young children understand emotions, routines, relationships, and everyday challenges.",
+    "minAge": 2,
+    "maxAge": 4,
+    "youtubeHandle": "@DanielTigersNeighbourhood",
+    "tags": [
+      "emotions"
+    ]
+  },
+  {
+    "id": "bluey",
+    "name": "Bluey",
+    "category": "Imaginative Play",
+    "description": "Family-centered stories built around imaginative play, relationships, and everyday childhood experiences.",
+    "minAge": 3,
+    "maxAge": 6,
+    "tags": [
+      "emotions"
+    ],
+    "youtubeChannelId": "UCVzLLZkDuFGAE2BGdBuBNBg"
+  },
+  {
+    "id": "puffin-rock",
+    "name": "Puffin Rock",
+    "category": "Nature & Stories",
+    "description": "Gentle animated stories about nature, friendship, family, and exploration.",
+    "minAge": 2,
+    "maxAge": 5,
+    "youtubeHandle": "@PuffinRock",
+    "tags": [
+      "nature",
+      "bedtime-stories"
+    ]
+  },
+  {
+    "id": "little-bear",
+    "name": "Little Bear",
+    "category": "Stories & Imagination",
+    "description": "Gentle stories about friendship, family, imagination, and everyday adventures.",
+    "minAge": 2,
+    "maxAge": 5,
+    "youtubeChannelId": "UCncFzSeWqySvOXEbQoEJsZg",
+    "tags": [
+      "bedtime-stories",
+      "emotions"
+    ]
+  },
+  {
+    "id": "the-wiggles",
+    "name": "The Wiggles",
+    "category": "Music & Movement",
+    "description": "Songs, dancing, movement, and interactive musical activities for young children.",
+    "minAge": 1,
+    "maxAge": 5,
+    "youtubeHandle": "@thewiggles",
+    "tags": [
+      "music"
+    ]
+  },
+  {
+    "id": "cosmic-kids-yoga",
+    "name": "Cosmic Kids Yoga",
+    "category": "Movement & Mindfulness",
+    "description": "Story-based yoga, movement, relaxation, and mindfulness activities for children.",
+    "minAge": 3,
+    "maxAge": 8,
+    "youtubeHandle": "@CosmicKidsYoga",
+    "tags": [
+      "emotions"
+    ]
+  },
+  {
+    "id": "art-for-kids-hub",
+    "name": "Art for Kids Hub",
+    "category": "Art & Creativity",
+    "description": "Step-by-step drawing and creative activities for children.",
+    "minAge": 3,
+    "maxAge": 8,
+    "youtubeHandle": "@artforkidshub",
+    "tags": [
+      "art",
+      "crafts"
+    ]
+  },
+  {
+    "id": "little-stories-for-tiny-people",
+    "name": "Little Stories for Tiny People",
+    "category": "Stories & Podcasts",
+    "description": "Gentle original audio stories created especially for young children.",
+    "minAge": 2,
+    "maxAge": 5,
+    "youtubeHandle": "@littlestoriesfortinypeople",
+    "tags": [
+      "bedtime-stories"
+    ]
+  },
+  {
+    "id": "little-bins-for-little-hands",
+    "name": "Little Bins for Little Hands",
+    "category": "Science",
+    "description": "Simple, hands-on science and sensory activities for young children to try with a grown-up.",
+    "minAge": 3,
+    "maxAge": 5,
+    "youtubeHandle": "@LittleBinsforLittleHands",
+    "tags": [
+      "science",
+      "crafts"
+    ]
+  },
+  {
+    "id": "pbs-kids",
+    "name": "PBS KIDS",
+    "category": "Early Learning",
+    "description": "The official PBS KIDS channel: clips and episodes from its preschool shows on learning, friendship and the outdoors.",
+    "minAge": 3,
+    "maxAge": 5,
+    "youtubeHandle": "@PBSKIDS",
+    "tags": [
+      "math",
+      "phonics-reading",
+      "science",
+      "emotions",
+      "nature"
+    ]
+  },
+  {
+    "id": "science-bob",
+    "name": "Science Bob",
+    "category": "Science",
+    "description": "Easy science experiments and demonstrations you can follow along with at home.",
+    "minAge": 4,
+    "maxAge": 5,
+    "youtubeHandle": "@ScienceBob",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "id": "cool-science-hq",
+    "name": "Cool Science Experiments Headquarters",
+    "category": "Science",
+    "description": "Hands-on science experiments explained step by step.",
+    "minAge": 4,
+    "maxAge": 5,
+    "youtubeHandle": "@CoolScienceHQ",
+    "tags": [
+      "science"
+    ]
+  },
+  {
+    "id": "emilys-science-lab",
+    "name": "Emily's Science Lab",
+    "category": "Science",
+    "description": "Science and engineering fun from Emily Calandrelli, aimed at curious kids.",
+    "minAge": 4,
+    "maxAge": 5,
+    "youtubeHandle": "@EmilysScienceLab",
+    "tags": [
+      "science"
+    ]
+  }
+]

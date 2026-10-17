@@ -1,0 +1,34 @@
+{
+  "youtube": [
+    { "tag": "science", "query": "science experiments for preschoolers" },
+    { "tag": "science", "query": "science for kids 4 year olds" },
+    { "tag": "math", "query": "counting and numbers for preschoolers" },
+    { "tag": "math", "query": "learn shapes and numbers for toddlers" },
+    { "tag": "phonics-reading", "query": "phonics for preschool" },
+    { "tag": "phonics-reading", "query": "learn the alphabet for toddlers" },
+    { "tag": "bedtime-stories", "query": "bedtime stories for kids" },
+    { "tag": "bedtime-stories", "query": "read aloud story time for preschoolers" },
+    { "tag": "music", "query": "nursery rhymes and songs for toddlers" },
+    { "tag": "music", "query": "kids songs and dance for preschool" },
+    { "tag": "nature", "query": "animals for kids preschool" },
+    { "tag": "nature", "query": "nature videos for toddlers" },
+    { "tag": "art", "query": "easy drawing for kids step by step" },
+    { "tag": "art", "query": "painting and art for preschoolers" },
+    { "tag": "crafts", "query": "easy crafts for kids" },
+    { "tag": "crafts", "query": "origami for kids easy" },
+    { "tag": "emotions", "query": "feelings and emotions for preschoolers" },
+    { "tag": "emotions", "query": "kindness and friendship for kids" },
+    { "tag": "space", "query": "space and planets for kids" },
+    { "tag": "space", "query": "astronauts and rockets for preschoolers" },
+    { "tag": "coding", "query": "coding and logic for kids preschool" }
+  ],
+  "podcasts": [
+    { "tag": "bedtime-stories", "query": "bedtime stories podcast for kids" },
+    { "tag": "science", "query": "science podcast for kids" },
+    { "tag": "music", "query": "music and songs podcast for kids" },
+    { "tag": "emotions", "query": "calm mindfulness podcast for kids" },
+    { "tag": "bedtime-stories", "query": "stories and imagination podcast for preschoolers" },
+    { "tag": "science", "query": "curious kids questions podcast" },
+    { "tag": "nature", "query": "animals and nature podcast for kids" }
+  ]
+}

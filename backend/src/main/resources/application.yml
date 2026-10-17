@@ -1,0 +1,72 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: aram-backend
+  jackson:
+    default-property-inclusion: non_null
+
+aram:
+  channels-file: classpath:channels.json
+  tags-file: classpath:tags.json
+  categories-file: classpath:categories.json
+  seed-enabled: ${ARAM_SEED_ENABLED:false}
+  refresh-enabled: ${ARAM_REFRESH_ENABLED:false}
+  cors:
+    allowed-origins: ${ARAM_ALLOWED_ORIGINS:http://localhost:5173}
+  youtube:
+    api-key: ${YOUTUBE_API_KEY:}
+    max-results: 5
+    cache-ttl-minutes: ${YOUTUBE_CACHE_TTL_MINUTES:180}
+  firestore:
+    project-id: ${GOOGLE_CLOUD_PROJECT:}
+    video-cache-collection: video_cache
+    parent-collection: parents
+
+  builder:
+    enabled: ${ARAM_BUILDER_ENABLED:false}
+    max-searches: 40
+    max-new-candidates: 40
+    target-age-months: 48
+    min-subscribers: 1000
+    review-dir: build/review
+
+  eligibility:
+    age-stretch-months: 12
+    stretch-from-child-months: 48
+    stretch-to-child-months: 59
+
+  export:
+    enabled: ${ARAM_EXPORT_ENABLED:false}
+    project-id: ${GOOGLE_CLOUD_PROJECT:}
+    hmac-key: ${ANALYTICS_HMAC_KEY:}
+
+  ml:
+    enabled: ${ARAM_ML_ENABLED:false}
+    blend-enabled: ${ARAM_ML_BLEND_ENABLED:false}
+    dataset: children_content_analytics_ml
+    embedding-endpoint: text-embedding-005
+    connection: aram-vertex
+    neighbor-count: 8
+    cluster-count: 8
+    min-similarity: 0.70
+    seed-count: 3
+    seed-damping: 0.5
+
+  podcast:
+    cache-ttl-minutes: 360
+    max-episodes: 10
+
+  gemini:
+    model: gemini-3.8-flash
+    fallback-model: gemini-2.5-flash
+    location: global
+    max-output-tokens: 2048
+    thinking-level: LOW
+    request-timeout-millis: 10000
+    max-attempts: 2
+
+logging:
+  level:
+    com.aram: INFO

@@ -1,0 +1,14 @@
+[
+  { "id": "math", "label": "Math & Numbers", "icon": "calculate", "categoryId": "math-counting", "description": "Counting, numbers, and early maths", "minAgeMonths": 24, "maxAgeMonths": 96 },
+  { "id": "bedtime-stories", "label": "Bedtime Stories", "icon": "nightlight", "categoryId": "stories-imagination", "description": "Calm stories for winding down", "minAgeMonths": 12, "maxAgeMonths": 96 },
+  { "id": "phonics-reading", "label": "Phonics & Reading", "icon": "spellcheck", "categoryId": "language-literacy", "description": "Letter sounds, vocabulary, and early reading", "minAgeMonths": 24, "maxAgeMonths": 96 },
+  { "id": "space", "label": "Space Exploration", "icon": "rocket_launch", "categoryId": "science-discovery", "description": "Planets, stars, and rockets", "minAgeMonths": 36, "maxAgeMonths": 120 },
+  { "id": "nature", "label": "Nature & Wildlife", "icon": "pets", "categoryId": "nature-animals", "description": "Animals, plants, and the outdoors", "minAgeMonths": 12, "maxAgeMonths": 120 },
+  { "id": "coding", "label": "Coding Basics", "icon": "terminal", "categoryId": "science-discovery", "description": "First steps in logic and programming", "minAgeMonths": 60, "maxAgeMonths": 144 },
+  { "id": "art", "label": "Drawing & Art", "icon": "draw", "categoryId": "art-creativity", "description": "Drawing and painting along", "minAgeMonths": 24, "maxAgeMonths": 144 },
+  { "id": "science", "label": "Science Experiments", "icon": "science", "categoryId": "science-discovery", "description": "Safe, simple experiments and how things work", "minAgeMonths": 36, "maxAgeMonths": 120 },
+  { "id": "music", "label": "Music & Rhythm", "icon": "music_note", "categoryId": "songs-music", "description": "Songs, nursery rhymes, and rhythm", "minAgeMonths": 0, "maxAgeMonths": 96 },
+  { "id": "emotions", "label": "Friendship & Emotions", "icon": "favorite", "categoryId": "social-emotional", "description": "Feelings, friendship, and kindness", "minAgeMonths": 18, "maxAgeMonths": 96 },
+  { "id": "podcasts", "label": "Curiosity Podcasts", "icon": "podcasts", "categoryId": "stories-imagination", "description": "Audio shows for curious kids", "minAgeMonths": 36, "maxAgeMonths": 144 },
+  { "id": "crafts", "label": "Origami & Crafts", "icon": "content_cut", "categoryId": "art-creativity", "description": "Folding, cutting, and making", "minAgeMonths": 36, "maxAgeMonths": 144 }
+]
