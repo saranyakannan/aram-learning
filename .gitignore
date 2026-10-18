@@ -24,6 +24,12 @@ credentials*.json
 # Local tool and run output
 .claude/
 CLAUDE.md
+
+# Kept locally, not published
+backend/deploy/
+backend/config/application.yml.example
+frontend/.env.example
+docs/decisions/
 *.log
 .gradle/
 

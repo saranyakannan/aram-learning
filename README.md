@@ -37,7 +37,7 @@ flowchart LR
     JOBS --> FS
 ```
 
-The full data model and rules are in [docs/architecture.md](docs/architecture.md); every departure from it is a numbered decision in [docs/decisions/](docs/decisions).
+The full data model and rules are in [docs/architecture.md](docs/architecture.md).
 
 ## Safety and privacy by design
 

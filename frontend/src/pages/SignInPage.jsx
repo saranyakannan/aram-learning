@@ -120,8 +120,7 @@ export default function SignInPage() {
 						</button>
 					) : (
 						<p className="text-[13px] text-aram-danger bg-aram-surface border border-aram-border rounded-xl px-4 py-3">
-							Sign-in isn&rsquo;t set up yet. Add the Firebase settings to <code>frontend/.env</code> (see{' '}
-							<code>.env.example</code>) and restart the dev server.
+							Sign-in isn&rsquo;t set up yet. Add the Firebase web settings (<code>VITE_FIREBASE_*</code>) to <code>frontend/.env</code> and restart the dev server.
 						</p>
 					)}
 
