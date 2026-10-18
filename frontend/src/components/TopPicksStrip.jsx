@@ -34,7 +34,7 @@ function useColumns() {
  * The first block of Kid Space: popular videos and fresh podcast episodes from approved sources, two rows at a time
  * with "Show more" (like YouTube). The server re-samples the picks on every request, and the shuffle button asks for new ones.
  */
-export default function TopPicksStrip({ childName, picks, isLoading, isShuffling, onShuffle }) {
+export default function TopPicksStrip({ picks, isLoading, isShuffling, onShuffle }) {
 	const columns = useColumns();
 	const [rows, setRows] = useState(ROWS_AT_FIRST);
 
@@ -48,15 +48,7 @@ export default function TopPicksStrip({ childName, picks, isLoading, isShuffling
 	return (
 		<section className="flex flex-col gap-space-md w-full">
 			<div className="flex items-end justify-between gap-space-md">
-				<div className="flex flex-col gap-1">
-					<div className="flex items-center gap-space-xs text-secondary">
-						<span className="material-symbols-outlined text-lg filled">local_fire_department</span>
-						<span className="font-headline text-label-sm uppercase tracking-wider">Top picks</span>
-					</div>
-					<h2 className="font-headline text-headline-md text-on-surface">
-						{childName ? `Popular with kids like ${childName}` : 'Popular right now'}
-					</h2>
-				</div>
+				<h2 className="font-headline text-headline-md text-on-surface">Top picks</h2>
 				<button
 					className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-on-surface font-headline text-label-md transition-colors disabled:opacity-50"
 					disabled={isShuffling}

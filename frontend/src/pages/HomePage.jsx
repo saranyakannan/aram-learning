@@ -176,7 +176,6 @@ export default function HomePage() {
 					<p className="font-body text-body-md text-on-surface-variant">
 						Stories to hear, things to discover, and new adventures to explore.
 					</p>
-					<p className="font-headline text-label-lg text-primary">Your own picks, all in one place</p>
 				</header>
 			)}
 
@@ -187,13 +186,15 @@ export default function HomePage() {
 			)}
 
 			{!searchTerm && approvedKey !== '' && (
-				<TopPicksStrip
-					childName={profile?.childName}
-					isLoading={picksLoading}
-					isShuffling={isShuffling}
-					picks={topPicks}
-					onShuffle={shuffle}
-				/>
+				<>
+					<TopPicksStrip
+						isLoading={picksLoading}
+						isShuffling={isShuffling}
+						picks={topPicks}
+						onShuffle={shuffle}
+					/>
+					<hr className="h-px border-0 bg-surface-container-highest" />
+				</>
 			)}
 
 			{visibleShelves.map(
