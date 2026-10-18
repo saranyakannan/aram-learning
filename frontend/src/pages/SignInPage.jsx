@@ -73,9 +73,11 @@ export default function SignInPage() {
 
 	return (
 		<div className="min-h-screen grid lg:grid-cols-2 bg-aram-bg text-white font-body antialiased selection:bg-aram-blue selection:text-white">
-			<aside className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-[#06213a] via-[#0a0a0a] to-black border-r border-aram-border">
-				<Brand />
-				<div className="flex flex-col gap-8 max-w-md">
+			<aside className="relative hidden lg:flex flex-col justify-center px-12 py-24 bg-gradient-to-br from-[#06213a] via-[#0a0a0a] to-black border-r border-aram-border">
+				<div className="absolute left-12 top-12">
+					<Brand />
+				</div>
+				<div className="flex flex-col gap-8 max-w-md lg:min-h-[560px]">
 					<div className="flex flex-col gap-3">
 						<h2 className="text-4xl font-bold tracking-tight leading-tight">A world of learning, thoughtfully chosen.</h2>
 						<p className="text-base text-aram-muted">A calm, parent-led space for little minds to explore.</p>
@@ -94,14 +96,14 @@ export default function SignInPage() {
 						))}
 					</ul>
 				</div>
-				<p className="text-xs text-neutral-500">Handcrafted by a parent to another for child learning</p>
+				<p className="absolute left-12 bottom-12 text-xs text-neutral-500">Handcrafted by a parent to another for child learning</p>
 			</aside>
 
 			<main className="flex flex-col items-center justify-center px-6 py-12">
 				<div className="lg:hidden mb-10">
 					<Brand />
 				</div>
-				<div className="w-full max-w-sm flex flex-col gap-6">
+				<div className="w-full max-w-sm flex flex-col gap-6 lg:min-h-[560px]">
 					<div className="flex flex-col gap-2">
 						<h1 className="text-3xl font-bold tracking-tight">Welcome to Aram</h1>
 						<p className="text-aram-muted text-sm">
@@ -186,8 +188,8 @@ export default function SignInPage() {
 
 const POINTS = [
 	{ icon: 'verified_user', title: 'You choose what belongs', body: 'Only the channels and podcasts you approve are added to your child’s space.' },
-	{ icon: 'shield', title: 'Reviewed with care', body: 'Each channel or podcast is assessed for age and suitability before you decide whether to add it.' },
-	{ icon: 'explore', title: 'Discover with Aram', body: 'Tell Aram what your child loves, or simply ask it to find a channel or podcast.' },
+	{ icon: 'shield', title: 'Reviewed with care by the Aram Agent', body: 'Each channel or podcast is assessed for age and suitability by the Aram Agent before you decide whether to add it.' },
+	{ icon: 'explore', title: 'Discover with the Aram Agent', body: 'Tell Aram what your child loves, or simply ask it to find a channel or podcast.' },
 ];
 
 function Brand() {
