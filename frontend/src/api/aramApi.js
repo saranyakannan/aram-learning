@@ -128,6 +128,14 @@ export function getRecommendations() {
 }
 
 /**
+ * Picture-book suggestions for the signed-in parent's child (Parent Space only), already filtered to the child's age.
+ * @returns {Promise<Array<{id: string, title: string, author?: string, minAgeMonths: number, maxAgeMonths: number, description: string, coverUrl?: string, buyUrl: string, store: string, matchedTags: string[], reason?: string}>>}
+ */
+export function getBooks() {
+	return requestJson('/api/me/books');
+}
+
+/**
  * @param {Array<{role: 'user'|'assistant', text: string}>} history earlier turns of this chat (used only when the server keeps no conversation)
  * @param {string} [sessionId] the server-side conversation to continue; omit to start a new one
  * @returns {Promise<{reply: string, candidates: Array<object>, staged: Array<object>, sessionId?: string}>}

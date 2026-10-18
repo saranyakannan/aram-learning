@@ -33,6 +33,8 @@ class MlPipelineServiceTest {
 		String inputCount = "4";
 		List<Map<String, String>> embeddings = new ArrayList<>();
 		List<Map<String, String>> neighbors = new ArrayList<>();
+		List<Map<String, String>> bookNeighbors = new ArrayList<>();
+		final List<Map<String, List<?>>> parameterised = new ArrayList<>();
 
 		@Override
 		public void execute(String sql) {
@@ -40,7 +42,16 @@ class MlPipelineServiceTest {
 		}
 
 		@Override
+		public void execute(String sql, Map<String, List<?>> arrayParameters) {
+			executed.add(sql);
+			parameterised.add(arrayParameters);
+		}
+
+		@Override
 		public List<Map<String, String>> query(String sql) {
+			if (sql.contains("ml_book_neighbors")) {
+				return bookNeighbors;
+			}
 			if (sql.contains("embedding_json")) {
 				return embeddings;
 			}
@@ -208,5 +219,111 @@ class MlPipelineServiceTest {
 		service.writeBack();
 
 		assertThat(signals.stored).isEqualTo(first);
+	}
+
+	// ---- books (decision record 0017) ----
+
+	static class MemoryBookSignals extends com.aram.backend.catalog.BookSignalRepository {
+		final Map<String, com.aram.backend.catalog.BookSignal> stored = new LinkedHashMap<>();
+
+		MemoryBookSignals() {
+			super(null);
+		}
+
+		@Override
+		public List<com.aram.backend.catalog.BookSignal> findAll() {
+			return new ArrayList<>(stored.values());
+		}
+
+		@Override
+		public void save(com.aram.backend.catalog.BookSignal signal) {
+			stored.put(signal.bookId(), signal);
+		}
+
+		@Override
+		public void delete(String bookId) {
+			stored.remove(bookId);
+		}
+	}
+
+	private MemoryBookSignals bookSignals;
+
+	private MlPipelineService withBooks() {
+		bookSignals = new MemoryBookSignals();
+		var books = mock(com.aram.backend.service.CuratedBookCatalog.class);
+		when(books.getBooks()).thenReturn(List.of(
+				new com.aram.backend.service.CuratedBookCatalog.Book("count-book", "Count Book", "An Author", 12, 48, List.of("math"),
+						"Counting from one to ten.", null, "https://www.amazon.in/dp/0241003008"),
+				new com.aram.backend.service.CuratedBookCatalog.Book("song-book", "Song Book", null, 0, 36, List.of("music"),
+						"Songs for babies.", null, "https://www.amazon.in/dp/0241003008")));
+		TagCatalogService taxonomy = mock(TagCatalogService.class);
+		when(taxonomy.getTags()).thenReturn(List.of(
+				new com.aram.backend.model.Tag("math", "Math & Numbers", "calculate", "math-counting", "Counting", 24, 96),
+				new com.aram.backend.model.Tag("music", "Music & Rhythm", "music_note", "songs-music", "Songs", 0, 96)));
+		when(taxonomy.categoryNameForTag(anyString())).thenReturn("Math & Counting");
+		AramProperties.Ml ml = new AramProperties.Ml();
+		var names = new MlSql.Names("proj", "us-central1", "analytics", "analytics_ml", "embedding_model", "text-embedding-005", "aram-vertex");
+		return new MlPipelineService(warehouse, signals, catalog, taxonomy, ml, names,
+				Clock.fixed(Instant.parse("2026-10-18T10:00:00Z"), ZoneOffset.UTC), books, bookSignals);
+	}
+
+	private void bookNeighbour(String book, String source, String similarity, String rank) {
+		warehouse.bookNeighbors.add(Map.of("book_id", book, "source_id", source, "similarity", similarity, "neighbor_rank", rank));
+	}
+
+	@Test
+	void booksAreEmbeddedAfterTheSourcesAndTheirTextTravelsAsParameters() {
+		MlPipelineService withBooks = withBooks();
+
+		withBooks.refresh();
+
+		assertThat(warehouse.executed).hasSize(6);
+		assertThat(warehouse.executed.get(3)).contains("ml_book_inputs").contains("@ids");
+		assertThat(warehouse.executed.get(4)).contains("ml_book_embeddings");
+		assertThat(warehouse.executed.get(5)).contains("ml_book_neighbors");
+		Map<String, List<?>> params = warehouse.parameterised.get(0);
+		assertThat(params.get("ids")).isEqualTo(List.of("count-book", "song-book"));
+		assertThat(params.get("mins")).isEqualTo(List.of(12L, 0L));
+		assertThat(params.get("maxs")).isEqualTo(List.of(48L, 36L));
+		assertThat((String) params.get("contents").get(0)).isEqualTo("Count Book. An Author. Counting from one to ten. Topics: Math & Numbers");
+		assertThat((String) params.get("contents").get(1)).isEqualTo("Song Book. Songs for babies. Topics: Music & Rhythm");
+		assertThat(withBooks.plan()).hasSize(6);
+	}
+
+	@Test
+	void withoutBooksNothingAboutBooksRuns() {
+		service.refresh();
+
+		assertThat(warehouse.executed).hasSize(3);
+		assertThat(warehouse.parameterised).isEmpty();
+		assertThat(service.writeBackBooks()).isEqualTo(new MlPipelineService.BookWriteBackResult(0, 0));
+	}
+
+	@Test
+	void bookSignalsKeepOnlyLiveSourcesSortedBySimilarityAndStaleOnesAreRemoved() {
+		MlPipelineService withBooks = withBooks();
+		bookSignals.stored.put("old-book", new com.aram.backend.catalog.BookSignal("old-book", List.of(), "x", Instant.EPOCH));
+		bookNeighbour("count-book", A, "0.80", "2");
+		bookNeighbour("count-book", B, "0.93", "1");
+		bookNeighbour("count-book", "youtube_UCgone", "0.99", "3"); // not a live source: dropped
+		bookNeighbour("song-book", C, "0.88", "1");
+		bookNeighbour("not-a-real-book", C, "0.90", "1"); // the pipeline never asked for this book
+
+		var result = withBooks.writeBackBooks();
+
+		assertThat(result).isEqualTo(new MlPipelineService.BookWriteBackResult(2, 1));
+		assertThat(bookSignals.stored.keySet()).containsExactlyInAnyOrder("count-book", "song-book");
+		var count = bookSignals.stored.get("count-book");
+		assertThat(count.neighbors()).extracting(com.aram.backend.catalog.SourceSignal.Neighbor::sourceId).containsExactly(B, A);
+		assertThat(count.modelVersion()).isEqualTo("text-embedding-005");
+	}
+
+	@Test
+	void anEmptyBookResultNeverWipesTheStoredBookSignals() {
+		MlPipelineService withBooks = withBooks();
+		bookSignals.stored.put("count-book", new com.aram.backend.catalog.BookSignal("count-book", List.of(), "x", Instant.EPOCH));
+
+		assertThatThrownBy(withBooks::writeBackBooks).isInstanceOf(IllegalStateException.class).hasMessageContaining("refusing");
+		assertThat(bookSignals.stored).containsKey("count-book");
 	}
 }

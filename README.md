@@ -10,6 +10,7 @@ Gemini does the vetting and explains its reasoning; the parent always has the fi
   runs a strict child-safety check, and stages it for the parent's approval. Conversations are kept on the server and can be resumed or cleared with "New chat".
 - **Kid Space.** The child's home: top picks, a shelf per channel and podcast, a video watch page and a podcast player. Only approved sources are ever served, and the backend enforces that (a video id typed into the address bar must belong to an approved channel).
 - **Recommendations.** "Similar to" suggestions come from embeddings of public catalog text computed in BigQuery, applied only after the age and safety eligibility filter.
+- **Book picks.** The parent portal suggests picture books from a reviewed list, each with a link to buy it. Books are filtered to the child's age, matched to the parent's interests, and ranked by the BigQuery ML recommendation engine (embeddings of book text compared with the channels and podcasts the child already has: "Similar to ..."). Books are never shown in Kid Space.
 - **Catalog growth with a human in the loop.** A builder finds candidate channels and podcasts and has Gemini draft assessments, but only a person applying a review sheet can make a source recommendable.
 
 ## Built on Google Cloud

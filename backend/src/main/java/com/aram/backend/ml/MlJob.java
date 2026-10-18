@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
  * Entry point of the recommendation batch; active only with {@code ARAM_ML_ENABLED=true}. Runs once and exits.
  *
  * <p>Options: {@code --setup} (create the ML dataset and embedding model), {@code --dry-run} (print the SQL, run nothing),
- * {@code --write-back-only} (cluster the existing embeddings and write {@code source_signals}); with no option it runs
- * refresh then write-back.
+ * {@code --write-back-only} (cluster the existing embeddings and write {@code source_signals} and {@code book_signals}); with no
+ * option it runs refresh then write-back. Books (decision record 0017) are embedded and matched after the sources.
  */
 @Component
 @ConditionalOnProperty(prefix = "aram.ml", name = "enabled", havingValue = "true")
@@ -58,6 +58,8 @@ public class MlJob implements ApplicationRunner {
 		}
 		var result = pipeline.writeBack();
 		log.info("Signals written: {}, removed: {}, clusters: {}", result.signalsWritten(), result.signalsRemoved(), result.clusters());
+		var books = pipeline.writeBackBooks();
+		log.info("Book signals written: {}, removed: {}", books.signalsWritten(), books.signalsRemoved());
 		return 0;
 	}
 }

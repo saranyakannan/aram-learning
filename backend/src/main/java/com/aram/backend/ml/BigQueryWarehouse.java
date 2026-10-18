@@ -4,6 +4,8 @@ import com.google.cloud.bigquery.BigQuery;
 import com.google.cloud.bigquery.FieldValue;
 import com.google.cloud.bigquery.FieldValueList;
 import com.google.cloud.bigquery.QueryJobConfiguration;
+import com.google.cloud.bigquery.QueryParameterValue;
+import com.google.cloud.bigquery.StandardSQLTypeName;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -26,6 +28,23 @@ public class BigQueryWarehouse implements MlWarehouse {
 	@Override
 	public void execute(String sql) {
 		run(sql);
+	}
+
+	@Override
+	public void execute(String sql, Map<String, List<?>> arrayParameters) {
+		var builder = QueryJobConfiguration.newBuilder(sql).setUseLegacySql(false);
+		arrayParameters.forEach((name, values) -> {
+			boolean numbers = !values.isEmpty() && values.get(0) instanceof Number;
+			builder.addNamedParameter(name, numbers
+					? QueryParameterValue.array(values.stream().map(v -> ((Number) v).longValue()).toArray(Long[]::new), StandardSQLTypeName.INT64)
+					: QueryParameterValue.array(values.stream().map(String::valueOf).toArray(String[]::new), StandardSQLTypeName.STRING));
+		});
+		try {
+			bigQuery.query(builder.build());
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new IllegalStateException("Interrupted while waiting for BigQuery", e);
+		}
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import { formatAgeRange, iconForCategory } from '../../lib/categoryStyle';
 import { useAgent } from '../../lib/AgentContext';
 import { useParent } from '../../lib/ParentContext';
 import { useSearch } from '../../lib/SearchContext';
+import BooksSection from '../../components/parent/BooksSection';
 import Loader from '../../components/Loader';
 
 const MAX_RECOMMENDED = 12;
@@ -404,6 +405,8 @@ export default function ManageChannelsPage() {
 					</p>
 				)}
 			</section>
+
+			<BooksSection childName={childName} refreshKey={`${tagKey}|${profile.birthYearMonth}`} tagLabel={tagLabel} />
 
 			<section className="rounded-2xl bg-aram-surface border border-aram-border p-6 flex flex-col gap-4 shadow-xl">
 				<SectionHeader

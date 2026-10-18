@@ -19,12 +19,13 @@ public class MlPipelineConfig {
 
 	@Bean
 	public MlPipelineService mlPipelineService(MlWarehouse warehouse, SourceSignalRepository signals, CatalogRepository catalog,
-			TagCatalogService taxonomy, AramProperties properties, Clock clock) {
+			TagCatalogService taxonomy, AramProperties properties, Clock clock,
+			com.aram.backend.service.CuratedBookCatalog books, com.aram.backend.catalog.BookSignalRepository bookSignals) {
 		AramProperties.Export export = properties.getExport();
 		AramProperties.Ml ml = properties.getMl();
 		String project = StringUtils.hasText(export.getProjectId()) ? export.getProjectId() : properties.getFirestore().getProjectId();
 		MlSql.Names names = new MlSql.Names(project, export.getLocation(), export.getDataset(), ml.getDataset(),
 				ml.getEmbeddingModel(), ml.getEmbeddingEndpoint(), ml.getConnection());
-		return new MlPipelineService(warehouse, signals, catalog, taxonomy, ml, names, clock);
+		return new MlPipelineService(warehouse, signals, catalog, taxonomy, ml, names, clock, books, bookSignals);
 	}
 }

@@ -14,6 +14,8 @@ public class AramProperties {
 
 	private String podcastsFile = "classpath:podcasts.json";
 
+	private String booksFile = "classpath:books.json";
+
 	/** When true the application seeds the taxonomy and the curated channels into Firestore at startup. */
 	private boolean seedEnabled = false;
 
@@ -72,6 +74,14 @@ public class AramProperties {
 
 	public void setPodcastsFile(String podcastsFile) {
 		this.podcastsFile = podcastsFile;
+	}
+
+	public String getBooksFile() {
+		return booksFile;
+	}
+
+	public void setBooksFile(String booksFile) {
+		this.booksFile = booksFile;
 	}
 
 	public String getCategoriesFile() {
@@ -594,6 +604,11 @@ public class AramProperties {
 		private int seedCount = 3;
 		private double seedDamping = 0.5;
 		private double minSimilarity = 0.70;
+		/**
+		 * Books are compared with channel and podcast text, which scores lower than channel-to-channel (observed 0.5 to 0.7 for the
+		 * good matches), so they get their own, lower minimum (decision record 0017).
+		 */
+		private double bookMinSimilarity = 0.60;
 		private double tagWeight = 1.0;
 		private double similarityWeight = 2.0;
 		private double curationBonus = 0.25;
@@ -676,6 +691,14 @@ public class AramProperties {
 
 		public void setSeedCount(int seedCount) {
 			this.seedCount = seedCount;
+		}
+
+		public double getBookMinSimilarity() {
+			return bookMinSimilarity;
+		}
+
+		public void setBookMinSimilarity(double bookMinSimilarity) {
+			this.bookMinSimilarity = bookMinSimilarity;
 		}
 
 		public double getMinSimilarity() {

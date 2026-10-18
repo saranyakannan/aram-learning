@@ -466,6 +466,19 @@ Holds plain chat text only (what the parent typed and what Aram answered), no to
 parent next opens the agent (no TTL in the library). Parent-typed text: never exported to BigQuery (`AnalyticsPrivacyTest`), and not part of any ML input. Only the backend reads it
 (Admin SDK); there are no client-side rules for it.
 
+3.17 `book_signals/{bookId}` (added by decision record 0017; not in the original spec)
+Precomputed similarity of one curated book (from `books.json`) to catalog sources, written only by the BigQuery ML batch job and read by the
+book recommender. Derived from public text only (title, author, our description, topic names); no parent, child or behaviour data. It only ranks:
+the book's age range is still a hard filter and a signal never makes anything eligible.
+
+```
+{
+  "bookId": "lets-say-our-numbers",
+  "neighbors": [ { "sourceId": "youtube_UC...", "similarity": 0.69 } ],
+  "modelVersion": "text-embedding-005",
+  "computedAt": "TIMESTAMP"
+}
+```
 4. Global and social discovery: do not create duplicate catalogs
 There is one canonical catalog. Global and social are
 candidate-generation paths, not separate copies of content.
@@ -907,6 +920,10 @@ video still exists. For podcasts the backend asks the show's audio host for the 
 episode (a clear 403/404/410 or an error page means unavailable; timeouts and 5xx mean
 unknown) and hides a show whose audio is clearly unavailable from Kid Space and from the
 agent. Results are kept in memory only; nothing is stored.
+Curated books (decision records 0016, 0017): the Parent Space shows picture-book suggestions with a link to buy. They come from a
+reviewed JSON file (`books.json`, ages in months, tags from the taxonomy). The books themselves are not in Firestore; the only stored
+derivative is `book_signals` (3.17), computed by the recommendation engine from public text. There is no per-family data and no BigQuery export of families. Only books whose age range includes the child's age are offered, ranked by the parent's
+chosen interests. Buy links must be https on an allowed store. Kid Space never shows books or purchase links.
 11. Initial seed-data examples
 Categories
 

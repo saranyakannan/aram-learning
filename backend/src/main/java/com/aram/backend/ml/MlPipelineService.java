@@ -1,11 +1,14 @@
 package com.aram.backend.ml;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.aram.backend.catalog.BookSignal;
+import com.aram.backend.catalog.BookSignalRepository;
 import com.aram.backend.catalog.CatalogRepository;
 import com.aram.backend.catalog.ContentSource;
 import com.aram.backend.catalog.SourceSignal;
 import com.aram.backend.catalog.SourceSignalRepository;
 import com.aram.backend.config.AramProperties;
+import com.aram.backend.service.CuratedBookCatalog;
 import com.aram.backend.service.TagCatalogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,10 @@ public class MlPipelineService {
 	public record WriteBackResult(int signalsWritten, int signalsRemoved, int clusters) {
 	}
 
+	/** How many book signals were saved and how many stale ones removed. */
+	public record BookWriteBackResult(int signalsWritten, int signalsRemoved) {
+	}
+
 	private final MlWarehouse warehouse;
 	private final SourceSignalRepository signals;
 	private final CatalogRepository catalog;
@@ -42,10 +49,21 @@ public class MlPipelineService {
 	private final AramProperties.Ml settings;
 	private final MlSql.Names names;
 	private final Clock clock;
+	private final CuratedBookCatalog books;
+	private final BookSignalRepository bookSignals;
 	private final ObjectMapper json = new ObjectMapper();
 
+	/** Sources only (no books). */
 	public MlPipelineService(MlWarehouse warehouse, SourceSignalRepository signals, CatalogRepository catalog,
 			TagCatalogService taxonomy, AramProperties.Ml settings, MlSql.Names names, Clock clock) {
+		this(warehouse, signals, catalog, taxonomy, settings, names, clock, null, null);
+	}
+
+	public MlPipelineService(MlWarehouse warehouse, SourceSignalRepository signals, CatalogRepository catalog,
+			TagCatalogService taxonomy, AramProperties.Ml settings, MlSql.Names names, Clock clock, CuratedBookCatalog books,
+			BookSignalRepository bookSignals) {
+		this.books = books;
+		this.bookSignals = bookSignals;
 		this.warehouse = warehouse;
 		this.signals = signals;
 		this.catalog = catalog;
@@ -63,7 +81,15 @@ public class MlPipelineService {
 
 	/** The statements {@link #refresh()} would run, for a dry run. */
 	public List<String> plan() {
-		return List.of(MlSql.inputs(names), MlSql.embeddings(names), MlSql.neighbors(names, settings.getNeighborCount()));
+		List<String> sql = new ArrayList<>(List.of(MlSql.inputs(names), MlSql.embeddings(names), MlSql.neighbors(names, settings.getNeighborCount())));
+		if (hasBooks()) {
+			sql.addAll(List.of(MlSql.bookInputs(names), MlSql.bookEmbeddings(names), MlSql.bookNeighbors(names, settings.getNeighborCount())));
+		}
+		return sql;
+	}
+
+	private boolean hasBooks() {
+		return books != null && bookSignals != null && !books.getBooks().isEmpty();
 	}
 
 	/** Rebuilds inputs, embeddings and neighbours. Returns how many sources went in. */
@@ -72,8 +98,86 @@ public class MlPipelineService {
 		if (inputs == 0) {
 			throw new IllegalStateException("No exported sources to embed; run the analytics export first");
 		}
-		plan().forEach(warehouse::execute);
+		List<String> sourceSql = List.of(MlSql.inputs(names), MlSql.embeddings(names), MlSql.neighbors(names, settings.getNeighborCount()));
+		sourceSql.forEach(warehouse::execute);
+		if (hasBooks()) {
+			// Books go after the sources: they are matched against the source embeddings that were just rebuilt.
+			warehouse.execute(MlSql.bookInputs(names), bookParameters());
+			warehouse.execute(MlSql.bookEmbeddings(names));
+			warehouse.execute(MlSql.bookNeighbors(names, settings.getNeighborCount()));
+		}
 		return inputs;
+	}
+
+	/** The book texts as parallel arrays: public catalog text only (title, author, our description, topic names). */
+	Map<String, List<?>> bookParameters() {
+		Map<String, String> labels = new HashMap<>();
+		taxonomy.getTags().forEach(tag -> labels.put(tag.id(), tag.label()));
+		List<String> ids = new ArrayList<>();
+		List<Long> mins = new ArrayList<>();
+		List<Long> maxs = new ArrayList<>();
+		List<String> contents = new ArrayList<>();
+		for (CuratedBookCatalog.Book book : books.getBooks()) {
+			ids.add(book.id());
+			mins.add((long) book.minAgeMonths());
+			maxs.add((long) book.maxAgeMonths());
+			String topics = book.tags().stream().map(id -> labels.getOrDefault(id, id)).collect(java.util.stream.Collectors.joining(", "));
+			contents.add(book.title() + ". " + (book.author() == null ? "" : book.author() + ". ") + book.description() + " Topics: " + topics);
+		}
+		Map<String, List<?>> parameters = new LinkedHashMap<>();
+		parameters.put("ids", ids);
+		parameters.put("mins", mins);
+		parameters.put("maxs", maxs);
+		parameters.put("contents", contents);
+		return parameters;
+	}
+
+	/**
+	 * Saves each book's nearest catalog sources to {@code book_signals}. Neighbours that are not live catalog sources are left
+	 * out, books the pipeline did not embed are not given a signal, stale signals are removed, and it refuses to replace the
+	 * stored signals with nothing.
+	 */
+	public BookWriteBackResult writeBackBooks() {
+		if (!hasBooks()) {
+			return new BookWriteBackResult(0, 0);
+		}
+		Map<String, ContentSource> sources = new HashMap<>();
+		catalog.findAllSources().forEach(source -> sources.put(source.id(), source));
+		Map<String, List<SourceSignal.Neighbor>> byBook = new LinkedHashMap<>();
+		for (Map<String, String> row : warehouse.query(MlSql.readBookNeighbors(names))) {
+			String sourceId = row.get("source_id");
+			if (!sources.containsKey(sourceId)) {
+				continue;
+			}
+			double similarity = Math.round(Double.parseDouble(row.get("similarity")) * 10000d) / 10000d;
+			byBook.computeIfAbsent(row.get("book_id"), key -> new ArrayList<>()).add(new SourceSignal.Neighbor(sourceId, similarity));
+		}
+		if (byBook.isEmpty()) {
+			throw new IllegalStateException("No book neighbours found; refusing to replace the stored book signals with nothing");
+		}
+		Set<String> knownBooks = new java.util.HashSet<>();
+		books.getBooks().forEach(book -> knownBooks.add(book.id()));
+		int written = 0;
+		Set<String> current = new java.util.HashSet<>();
+		for (Map.Entry<String, List<SourceSignal.Neighbor>> entry : byBook.entrySet()) {
+			if (!knownBooks.contains(entry.getKey())) {
+				continue;
+			}
+			List<SourceSignal.Neighbor> neighbors = new ArrayList<>(entry.getValue());
+			neighbors.sort(Comparator.comparingDouble(SourceSignal.Neighbor::similarity).reversed().thenComparing(SourceSignal.Neighbor::sourceId));
+			bookSignals.save(new BookSignal(entry.getKey(), neighbors, names.endpoint(), clock.instant()));
+			current.add(entry.getKey());
+			written++;
+		}
+		int removed = 0;
+		for (BookSignal old : bookSignals.findAll()) {
+			if (!current.contains(old.bookId())) {
+				bookSignals.delete(old.bookId());
+				removed++;
+			}
+		}
+		log.info("Wrote {} book signals, removed {} stale", written, removed);
+		return new BookWriteBackResult(written, removed);
 	}
 
 	public WriteBackResult writeBack() {

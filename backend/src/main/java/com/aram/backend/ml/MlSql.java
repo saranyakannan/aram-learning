@@ -13,6 +13,9 @@ public final class MlSql {
 	public static final String INPUTS = "ml_source_inputs";
 	public static final String EMBEDDINGS = "ml_source_embeddings";
 	public static final String NEIGHBORS = "ml_source_neighbors";
+	public static final String BOOK_INPUTS = "ml_book_inputs";
+	public static final String BOOK_EMBEDDINGS = "ml_book_embeddings";
+	public static final String BOOK_NEIGHBORS = "ml_book_neighbors";
 
 	/** The only analytics tables the engine may read. */
 	public static final List<String> SOURCE_TABLES = List.of("dim_content_sources", "dim_tags");
@@ -114,5 +117,53 @@ public final class MlSql {
 	public static String countInputs(Names n) {
 		return "SELECT CAST(COUNT(*) AS STRING) AS n FROM " + n.analytics("dim_content_sources")
 				+ " WHERE catalog_status = 'ACTIVE' AND assessment_status IN ('ASSESSED', 'APPROVED_FOR_RECOMMENDATION')";
+	}
+
+	/**
+	 * One text per curated book (decision record 0017). The book text arrives as query parameters ({@code @ids}, {@code @mins},
+	 * {@code @maxs}, {@code @contents}, parallel arrays), never pasted into the statement.
+	 */
+	public static String bookInputs(Names n) {
+		return "CREATE OR REPLACE TABLE " + n.ml(BOOK_INPUTS) + " AS\n"
+				+ "SELECT @ids[OFFSET(i)] AS book_id, @mins[OFFSET(i)] AS min_age_months, @maxs[OFFSET(i)] AS max_age_months,\n"
+				+ "  @contents[OFFSET(i)] AS content\n"
+				+ "FROM UNNEST(GENERATE_ARRAY(0, ARRAY_LENGTH(@ids) - 1)) AS i";
+	}
+
+	/** Embeds the book texts with the same remote model as the sources, so the two are comparable. */
+	public static String bookEmbeddings(Names n) {
+		return "CREATE OR REPLACE TABLE " + n.ml(BOOK_EMBEDDINGS) + " AS\n"
+				+ "SELECT book_id, content, ml_generate_embedding_result AS embedding, CURRENT_TIMESTAMP() AS computed_at\n"
+				+ "FROM ML.GENERATE_EMBEDDING(MODEL " + n.ml(n.model()) + ",\n"
+				+ "  (SELECT book_id, content FROM " + n.ml(BOOK_INPUTS) + "), STRUCT(TRUE AS flatten_json_output))\n"
+				+ "WHERE ARRAY_LENGTH(ml_generate_embedding_result) > 0";
+	}
+
+	/**
+	 * For each book, its nearest catalog sources by cosine distance, only sources whose age range overlaps the book's (a missing
+	 * source age counts as overlapping). Books are the query side and the source embeddings the base, so books are never
+	 * anyone's neighbour and the source-to-source tables are untouched. {@code similarity = 1 - cosine distance}.
+	 */
+	public static String bookNeighbors(Names n, int neighborCount) {
+		if (neighborCount < 1 || neighborCount > 50) {
+			throw new IllegalArgumentException("neighborCount must be 1-50");
+		}
+		int searchDepth = Math.min(neighborCount * 3 + 1, 200);
+		return "CREATE OR REPLACE TABLE " + n.ml(BOOK_NEIGHBORS) + " AS\n"
+				+ "SELECT book_id, source_id, similarity, neighbor_rank FROM (\n"
+				+ "  SELECT r.query.book_id AS book_id, r.base.source_id AS source_id, 1 - r.distance AS similarity,\n"
+				+ "    ROW_NUMBER() OVER (PARTITION BY r.query.book_id ORDER BY r.distance, r.base.source_id) AS neighbor_rank\n"
+				+ "  FROM VECTOR_SEARCH(TABLE " + n.ml(EMBEDDINGS) + ", 'embedding', TABLE " + n.ml(BOOK_EMBEDDINGS) + ", 'embedding',\n"
+				+ "    top_k => " + searchDepth + ", distance_type => 'COSINE', options => '{\"use_brute_force\":true}') AS r\n"
+				+ "  JOIN " + n.ml(BOOK_INPUTS) + " AS a ON a.book_id = r.query.book_id\n"
+				+ "  JOIN " + n.ml(INPUTS) + " AS b ON b.source_id = r.base.source_id\n"
+				+ "  WHERE (b.max_age_months IS NULL OR a.min_age_months <= b.max_age_months)\n"
+				+ "    AND (b.min_age_months IS NULL OR b.min_age_months <= a.max_age_months)\n"
+				+ ") WHERE neighbor_rank <= " + neighborCount;
+	}
+
+	public static String readBookNeighbors(Names n) {
+		return "SELECT book_id, source_id, CAST(similarity AS STRING) AS similarity, CAST(neighbor_rank AS STRING) AS neighbor_rank FROM "
+				+ n.ml(BOOK_NEIGHBORS) + " ORDER BY book_id, neighbor_rank";
 	}
 }
