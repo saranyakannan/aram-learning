@@ -7,6 +7,8 @@ const INPUT_CLASS =
 	'w-full bg-aram-input text-white text-sm pl-10 pr-3 py-2.5 rounded-lg border border-aram-border placeholder:text-aram-faint focus:outline-none focus:border-aram-blue transition-all';
 const SELECT_CLASS =
 	'w-full bg-aram-input text-white text-sm px-3 py-2.5 rounded-lg border border-aram-border focus:outline-none focus:border-aram-blue transition-all';
+// The age is fixed for now: the catalog is grounded for 4-year-olds only, with all ages to follow.
+const LOCKED = ' disabled:opacity-60 disabled:cursor-not-allowed';
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const currentYear = new Date().getFullYear();
 const birthYears = Array.from({ length: 19 }, (_, index) => currentYear - index);
@@ -126,7 +128,7 @@ export default function ProfilePage() {
 				<div className="flex flex-col gap-1">
 					<span className="text-[13px] font-medium text-white">Child&rsquo;s birth month</span>
 					<div className="grid grid-cols-2 gap-3">
-						<select aria-label="Birth month" className={SELECT_CLASS} value={birthMonth} onChange={(event) => setBirthMonth(event.target.value)}>
+						<select aria-label="Birth month" className={SELECT_CLASS + LOCKED} disabled value={birthMonth} onChange={(event) => setBirthMonth(event.target.value)}>
 							<option value="">Month</option>
 							{MONTHS.map((name, index) => (
 								<option key={name} value={String(index + 1).padStart(2, '0')}>
@@ -134,7 +136,7 @@ export default function ProfilePage() {
 								</option>
 							))}
 						</select>
-						<select aria-label="Birth year" className={SELECT_CLASS} value={birthYear} onChange={(event) => setBirthYear(event.target.value)}>
+						<select aria-label="Birth year" className={SELECT_CLASS + LOCKED} disabled value={birthYear} onChange={(event) => setBirthYear(event.target.value)}>
 							<option value="">Year</option>
 							{birthYears.map((year) => (
 								<option key={year} value={String(year)}>
@@ -144,6 +146,7 @@ export default function ProfilePage() {
 						</select>
 					</div>
 					<p className="text-[11px] text-aram-faint">Used to match channels to your child&rsquo;s age. We keep only the month and year.</p>
+					<p className="text-[12px] font-medium text-amber-300">Fixed at 4 years for now: Aram is currently grounded with content for 4-year-olds only, and we are extending to all ages.</p>
 				</div>
 
 				{error && <p className="text-[13px] text-aram-danger">{error}</p>}

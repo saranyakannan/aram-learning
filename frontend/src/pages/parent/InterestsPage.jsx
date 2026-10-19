@@ -3,6 +3,11 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import { getTags } from '../../api/aramApi';
 import { useParent } from '../../lib/ParentContext';
 
+// Hidden for now: the catalog has nothing for these yet for a 4-year-old. Remove an id here once content exists.
+const HIDDEN_TAGS = new Set(['space', 'coding']);
+// Enough topics for the suggestions to have something to work with (some topics have only a few sources).
+const MIN_TAGS = 3;
+
 export default function InterestsPage() {
 	const { profile, saveTags } = useParent();
 	const navigate = useNavigate();
@@ -17,7 +22,7 @@ export default function InterestsPage() {
 		let cancelled = false;
 		getTags()
 			.then((loaded) => {
-				if (!cancelled) setTags(loaded);
+				if (!cancelled) setTags(loaded.filter((tag) => !HIDDEN_TAGS.has(tag.id)));
 			})
 			.catch(() => {
 				if (!cancelled) setTagsError(true);
@@ -39,8 +44,12 @@ export default function InterestsPage() {
 		});
 	}
 
+	// Count only the topics on screen: a hidden one chosen earlier is not saved.
+	const chosenCount = tags.filter((tag) => selected.has(tag.id)).length;
+	const canContinue = chosenCount >= MIN_TAGS;
+
 	async function handleContinue() {
-		if (selected.size === 0 || isSaving) return;
+		if (!canContinue || isSaving) return;
 		setIsSaving(true);
 		setSaveError(null);
 		try {
@@ -98,14 +107,18 @@ export default function InterestsPage() {
 				{saveError && <p className="text-[13px] text-aram-danger">{saveError}</p>}
 				<button
 					className="w-full py-3.5 px-6 rounded-full bg-aram-blue hover:bg-aram-blue-hover disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
-					disabled={selected.size === 0 || isSaving}
+					disabled={!canContinue || isSaving}
 					type="button"
 					onClick={handleContinue}
 				>
 					<span>{isSaving ? 'Saving...' : 'Continue to Aram'}</span>
 					<span className="material-symbols-outlined text-[18px]">arrow_forward</span>
 				</button>
-				{selected.size === 0 && <p className="text-xs text-neutral-500">Pick at least one to continue.</p>}
+				{!canContinue && (
+					<p className="text-xs text-neutral-500">
+						Pick at least {MIN_TAGS} topics to continue{chosenCount > 0 ? ` (${chosenCount} chosen)` : ''}.
+					</p>
+				)}
 
 				<div className="flex items-center justify-center gap-2 pt-1">
 					<div className="w-2 h-2 rounded-full bg-aram-border-strong" />

@@ -9,9 +9,19 @@ const INPUT_CLASS =
 
 const SELECT_CLASS =
 	'w-full bg-aram-input text-white text-sm px-3 py-2.5 rounded-lg border border-aram-border focus:outline-none focus:border-aram-blue transition-all';
+// The age is fixed for now: the catalog is grounded for 4-year-olds only, with all ages to follow.
+const LOCKED = ' disabled:opacity-60 disabled:cursor-not-allowed';
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const currentYear = new Date().getFullYear();
 const birthYears = Array.from({ length: 19 }, (_, index) => currentYear - index);
+
+// Pre-filled so a new family can go straight on: a child of 4 and a half. Only content for 4-year-olds is pre-filled for now.
+const PREFILL_AGE_MONTHS = 54;
+const prefill = new Date();
+prefill.setDate(1);
+prefill.setMonth(prefill.getMonth() - PREFILL_AGE_MONTHS);
+const PREFILL_YEAR = String(prefill.getFullYear());
+const PREFILL_MONTH = String(prefill.getMonth() + 1).padStart(2, '0');
 
 function Field({ id, label, icon, children }) {
 	return (
@@ -36,8 +46,8 @@ export default function WelcomePage() {
 
 	const [parentName, setParentName] = useState(profile?.parentName ?? user?.displayName ?? '');
 	const [childName, setChildName] = useState(profile?.childName ?? '');
-	const [birthYear, setBirthYear] = useState(profile?.birthYearMonth?.slice(0, 4) ?? '');
-	const [birthMonth, setBirthMonth] = useState(profile?.birthYearMonth?.slice(5, 7) ?? '');
+	const [birthYear, setBirthYear] = useState(profile?.birthYearMonth?.slice(0, 4) ?? PREFILL_YEAR);
+	const [birthMonth, setBirthMonth] = useState(profile?.birthYearMonth?.slice(5, 7) ?? PREFILL_MONTH);
 	const [isSaving, setIsSaving] = useState(false);
 	const [error, setError] = useState(null);
 
@@ -115,7 +125,8 @@ export default function WelcomePage() {
 						<div className="grid grid-cols-2 gap-3">
 							<select
 								aria-label="Birth month"
-								className={SELECT_CLASS}
+								className={SELECT_CLASS + LOCKED}
+								disabled
 								id="child-birth-month"
 								value={birthMonth}
 								onChange={(event) => setBirthMonth(event.target.value)}
@@ -129,7 +140,8 @@ export default function WelcomePage() {
 							</select>
 							<select
 								aria-label="Birth year"
-								className={SELECT_CLASS}
+								className={SELECT_CLASS + LOCKED}
+								disabled
 								id="child-birth-year"
 								value={birthYear}
 								onChange={(event) => setBirthYear(event.target.value)}
@@ -143,6 +155,9 @@ export default function WelcomePage() {
 							</select>
 						</div>
 						<p className="text-[11px] text-aram-faint">Used to match channels to your child&rsquo;s age. We keep only the month and year.</p>
+						<p className="text-[12px] font-medium text-amber-300">
+							Fixed at 4 years for now: Aram is currently grounded with content for 4-year-olds only, and we are extending to all ages.
+						</p>
 					</div>
 
 					{error && <p className="text-[13px] text-aram-danger">{error}</p>}
