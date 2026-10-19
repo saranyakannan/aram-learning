@@ -162,6 +162,77 @@ class AgentServiceTest {
 		verifyNoInteractions(lookup, safety);
 	}
 
+	private AgentService withSuggester(CatalogSuggester suggester) {
+		return new AgentService(model, new ChannelLinkParser(), lookup, videos, safety, staged, profiles, catalog,
+				new com.aram.backend.podcast.PodcastLinkParser(), podcastDirectory, podcastFeeds, mock(AgentRateLimiter.class),
+				null, false, null, false, suggester);
+	}
+
+	@Test
+	void aTopicRequestIsAnsweredFromTheTrustedListAsCardsAndNothingIsAssessedYet() {
+		CatalogSuggester suggester = mock(CatalogSuggester.class);
+		ChannelFacts alphablocks = new ChannelFacts("UCaaaaaaaaaaaaaaaaaaaaaa", "Alphablocks", "@Alphablocks", "Letters.", null, null, null, null);
+		ChannelFacts show = new ChannelFacts("123456", "Phonics Show", "Reading Co", "Sounds.", null, null, null, ChannelFacts.PODCAST);
+		when(suggester.suggest(PARENT, "phonics")).thenReturn(new CatalogSuggester.Suggestions(
+				new com.aram.backend.model.Tag("phonics-reading", "Phonics & Reading", "spellcheck"), false, false,
+				List.of(new CatalogSuggester.Pick(alphablocks, "Similar to Bluey", List.of("phonics-reading")),
+						new CatalogSuggester.Pick(show, null, List.of("phonics-reading")))));
+		model.script(call("recommend_from_catalog", "topic", "phonics"), text("Here are two from Aram's list. Pick one."));
+
+		AgentService.AgentReply reply = withSuggester(suggester).respond(PARENT, "suggest a phonics channel", List.of());
+
+		assertThat(reply.candidates()).containsExactly(alphablocks, show);
+		Turn.ToolResults result = (Turn.ToolResults) model.seen.get(1).get(model.seen.get(1).size() - 1);
+		Map<String, Object> response = result.results().get(0).response();
+		assertThat(response).containsEntry("found", true).containsEntry("topic", "Phonics & Reading");
+		List<?> candidates = (List<?>) response.get("candidates");
+		assertThat(candidates).hasSize(2);
+		assertThat(((Map<?, ?>) candidates.get(0)).get("why")).isEqualTo("Similar to Bluey");
+		assertThat(((Map<?, ?>) candidates.get(1)).get("podcastId")).isEqualTo("123456");
+		verify(safety, never()).assess(any(), any(), anyInt());
+		verify(staged, never()).recordAssessment(any(), any(ChannelFacts.class), any());
+		verifyNoInteractions(lookup);
+	}
+
+	@Test
+	void aTopicThePlatformDoesNotCoverTellsTheModelNotToInventAnything() {
+		CatalogSuggester suggester = mock(CatalogSuggester.class);
+		when(suggester.suggest(PARENT, "dinosaurs")).thenReturn(new CatalogSuggester.Suggestions(null, false, false, List.of()));
+		when(suggester.topicLabels()).thenReturn(List.of("Math & Numbers", "Phonics & Reading"));
+		model.script(call("recommend_from_catalog", "topic", "dinosaurs"), text("We don't list those yet."));
+
+		AgentService.AgentReply reply = withSuggester(suggester).respond(PARENT, "dinosaur channels please", List.of());
+
+		assertThat(reply.candidates()).isEmpty();
+		Map<String, Object> response = ((Turn.ToolResults) model.seen.get(1).get(model.seen.get(1).size() - 1)).results().get(0).response();
+		assertThat(response).containsEntry("found", false).containsKey("topicsInAramList");
+		assertThat(String.valueOf(response.get("message"))).contains("Never suggest");
+	}
+
+	@Test
+	void aTopicWithNothingSuitableLeftSaysSoWithoutCards() {
+		CatalogSuggester suggester = mock(CatalogSuggester.class);
+		when(suggester.suggest(PARENT, "math podcast")).thenReturn(new CatalogSuggester.Suggestions(
+				new com.aram.backend.model.Tag("math", "Math & Numbers", "calculate"), true, false, List.of()));
+		model.script(call("recommend_from_catalog", "topic", "math podcast"), text("Nothing new there."));
+
+		AgentService.AgentReply reply = withSuggester(suggester).respond(PARENT, "math podcast", List.of());
+
+		assertThat(reply.candidates()).isEmpty();
+		Map<String, Object> response = ((Turn.ToolResults) model.seen.get(1).get(model.seen.get(1).size() - 1)).results().get(0).response();
+		assertThat(String.valueOf(response.get("message"))).contains("Math & Numbers podcasts");
+	}
+
+	@Test
+	void withoutASuggesterTheToolAnswersWithAnErrorInsteadOfFailing() {
+		model.script(call("recommend_from_catalog", "topic", "math"), text("Send me a name or link."));
+
+		AgentService.AgentReply reply = service.respond(PARENT, "suggest math", List.of());
+
+		assertThat(reply.reply()).contains("name or link");
+		assertThat(reply.candidates()).isEmpty();
+	}
+
 	private static final ContentSource EXISTING = InMemoryStores.source(ID, "Bluey", Statuses.Assessment.APPROVED_FOR_RECOMMENDATION,
 			36, 83, "emotions");
 

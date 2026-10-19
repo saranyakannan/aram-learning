@@ -99,8 +99,10 @@ transcript/audio/video evidence. - Propose tags and age suitability. -
 Produce a structured assessment with evidence limitations. - Never
 bypass approval or eligibility policy.
 Implementation (decision records 0013, 0014): the agent runs on Google's Agent Development Kit
-for Java with Gemini on Vertex AI, with four application-owned tools (find/assess channel,
-find/assess podcast). The tools run inside the backend with the parent id and the child's age
+for Java with Gemini on Vertex AI, with five application-owned tools (find/assess channel,
+find/assess podcast, and recommend_from_catalog, which answers "suggest a phonics channel"
+from Aram's own reviewed catalog only, with the same eligibility policy and ranking as the
+Manage Channels shelf, and never from the open web). The tools run inside the backend with the parent id and the child's age
 taken from the verified token and the stored profile, never from the model. Name-search
 results are screened for the child's age before the parent sees them. The conversation is an
 ADK session in Firestore (3.16, no long-term memory). The agent can stage a source but only

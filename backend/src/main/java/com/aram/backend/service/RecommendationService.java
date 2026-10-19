@@ -65,14 +65,27 @@ public class RecommendationService {
 	}
 
 	public List<ChannelRecommendation> recommend(String parentId) {
+		return recommend(parentId, Set.copyOf(profileService.getProfile(parentId).getTags()), false);
+	}
+
+	/**
+	 * The same ranking for tags the parent just asked about, rather than the interests picked at sign-up. Every result
+	 * matches at least one of the tags (the look-alikes of what the child already has, which suit the shelf, are left out),
+	 * passes the eligibility filter and is not already on the child's list.
+	 */
+	public List<ChannelRecommendation> recommendForTags(String parentId, Set<String> wanted) {
+		return wanted.isEmpty() ? List.of() : recommend(parentId, wanted, true);
+	}
+
+	private List<ChannelRecommendation> recommend(String parentId, Set<String> wanted, boolean onTopicOnly) {
 		Optional<ParentProfileService.ChildContext> child = profileService.findChild(parentId);
 		if (child.isEmpty()) {
 			return List.of();
 		}
-		Set<String> wanted = Set.copyOf(profileService.getProfile(parentId).getTags());
 		Set<String> approved = Set.copyOf(childCatalog.approvedSourceIds(child.get().childId()));
 		if (settings.isBlendEnabled() && signals != null) {
-			return blend(catalog.recommendable(), wanted, child.get().ageMonths(), approved);
+			List<ChannelRecommendation> blended = blend(catalog.recommendable(), wanted, child.get().ageMonths(), approved);
+			return onTopicOnly ? blended.stream().filter(r -> !r.matchedTags().isEmpty()).toList() : blended;
 		}
 		return rank(catalog.recommendable(), wanted, child.get().ageMonths(), approved);
 	}

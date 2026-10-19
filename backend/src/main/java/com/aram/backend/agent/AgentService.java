@@ -83,6 +83,7 @@ public class AgentService {
 	private final boolean useAdk;
 	private final AgentSessionStore sessionStore;
 	private final boolean useSessions;
+	private final CatalogSuggester suggester;
 
 	/** Hand-written loop only; used by tests that script the model themselves. */
 	AgentService(AgentModel model, ChannelLinkParser linkParser, YoutubeChannelLookup lookup,
@@ -110,11 +111,11 @@ public class AgentService {
 			StagedChannelService stagedChannels, ParentProfileService profileService,
 			CatalogService catalogService, PodcastLinkParser podcastLinkParser, PodcastDirectory podcastDirectory,
 			PodcastFeedService podcastFeeds, AgentRateLimiter rateLimiter, AdkAgentEngine adkEngine,
-			AgentSessionStore sessionStore, AramProperties properties) {
+			AgentSessionStore sessionStore, AramProperties properties, CatalogSuggester suggester) {
 		this(model, linkParser, lookup, youtubeVideoService, safetyService, stagedChannels, profileService, catalogService,
 				podcastLinkParser, podcastDirectory, podcastFeeds, rateLimiter, adkEngine,
 				"adk".equalsIgnoreCase(properties.getAgent().getEngine()), sessionStore,
-				properties.getAgent().isSessionsEnabled());
+				properties.getAgent().isSessionsEnabled(), suggester);
 	}
 
 	AgentService(AgentModel model, ChannelLinkParser linkParser, YoutubeChannelLookup lookup,
@@ -123,6 +124,16 @@ public class AgentService {
 			CatalogService catalogService, PodcastLinkParser podcastLinkParser, PodcastDirectory podcastDirectory,
 			PodcastFeedService podcastFeeds, AgentRateLimiter rateLimiter, AdkAgentEngine adkEngine, boolean useAdk,
 			AgentSessionStore sessionStore, boolean useSessions) {
+		this(model, linkParser, lookup, youtubeVideoService, safetyService, stagedChannels, profileService, catalogService,
+				podcastLinkParser, podcastDirectory, podcastFeeds, rateLimiter, adkEngine, useAdk, sessionStore, useSessions, null);
+	}
+
+	AgentService(AgentModel model, ChannelLinkParser linkParser, YoutubeChannelLookup lookup,
+			YoutubeVideoService youtubeVideoService, ChannelSafetyService safetyService,
+			StagedChannelService stagedChannels, ParentProfileService profileService,
+			CatalogService catalogService, PodcastLinkParser podcastLinkParser, PodcastDirectory podcastDirectory,
+			PodcastFeedService podcastFeeds, AgentRateLimiter rateLimiter, AdkAgentEngine adkEngine, boolean useAdk,
+			AgentSessionStore sessionStore, boolean useSessions, CatalogSuggester suggester) {
 		this.model = model;
 		this.linkParser = linkParser;
 		this.lookup = lookup;
@@ -139,6 +150,7 @@ public class AgentService {
 		this.useAdk = useAdk && adkEngine != null;
 		this.sessionStore = sessionStore;
 		this.useSessions = useSessions && sessionStore != null;
+		this.suggester = suggester;
 	}
 
 	/** Mutable state for one request: what cards to show, and what the turn did. */
@@ -286,6 +298,7 @@ public class AgentService {
 				case "assess_channel" -> assessChannel(state, stringArg(call, "channelId"));
 				case "find_podcast" -> findPodcast(state, stringArg(call, "query"));
 				case "assess_podcast" -> assessPodcast(state, stringArg(call, "podcastId"));
+				case "recommend_from_catalog" -> recommendFromCatalog(state, stringArg(call, "topic"));
 				default -> Map.of("error", "Unknown tool: " + call.name());
 			};
 		} catch (YoutubeIntegrationException e) {
@@ -297,6 +310,59 @@ public class AgentService {
 		} finally {
 			log.info("Agent tool {} took {} ms", call.name(), (System.nanoTime() - started) / 1_000_000);
 		}
+	}
+
+	/**
+	 * Suggestions from Aram's own trusted list for a topic the parent described, shown as cards. Nothing here searches the
+	 * web: the sources are the reviewed, approved ones the child is allowed, ranked as on the Manage Channels shelf.
+	 */
+	private Map<String, Object> recommendFromCatalog(TurnState state, String topic) {
+		state.candidates = List.of();
+		if (suggester == null) {
+			return Map.of("error", "Suggestions are not available right now. Ask the parent for a channel name or link.");
+		}
+		if (topic == null || topic.isBlank()) {
+			return Map.of("error", "Ask the parent what topic they would like suggestions for.");
+		}
+		CatalogSuggester.Suggestions suggestions = suggester.suggest(state.parentId, topic);
+		if (suggestions.tag() == null) {
+			Map<String, Object> result = new LinkedHashMap<>();
+			result.put("found", false);
+			result.put("topicsInAramList", suggester.topicLabels());
+			result.put("message", "That is not a topic in Aram's trusted list. Offer one of the topics in topicsInAramList, "
+					+ "or ask for a channel name or link to check. Never suggest channels from your own knowledge.");
+			return result;
+		}
+		if (suggestions.picks().isEmpty()) {
+			Map<String, Object> result = new LinkedHashMap<>();
+			result.put("found", false);
+			result.put("topic", suggestions.tag().label());
+			result.put("message", "Aram's trusted list has nothing more for " + suggestions.tag().label()
+					+ (suggestions.podcastsOnly() ? " podcasts" : suggestions.channelsOnly() ? " channels" : "")
+					+ " that suits this child right now (anything suitable is already on their list). Say so, and offer to check "
+					+ "a specific channel or podcast if the parent sends a name or link. Never suggest any from your own knowledge.");
+			return result;
+		}
+		state.candidates = suggestions.picks().stream().map(CatalogSuggester.Pick::card).toList();
+		List<Map<String, Object>> described = new ArrayList<>();
+		for (CatalogSuggester.Pick pick : suggestions.picks()) {
+			Map<String, Object> entry = describe(pick.card());
+			if (pick.card().kind() != null) {
+				entry.remove("channelId");
+				entry.put("podcastId", pick.card().channelId());
+			}
+			if (pick.reason() != null) {
+				entry.put("why", pick.reason());
+			}
+			described.add(entry);
+		}
+		Map<String, Object> result = new LinkedHashMap<>();
+		result.put("found", true);
+		result.put("topic", suggestions.tag().label());
+		result.put("candidates", described);
+		result.put("note", "These come from Aram's trusted list and are shown to the parent as cards. Ask them to pick one; "
+				+ "do not assess until they do.");
+		return result;
 	}
 
 	private Map<String, Object> findChannel(TurnState state, String query) {
@@ -629,13 +695,24 @@ public class AgentService {
 						Map.of("type", "object",
 								"properties", Map.of("podcastId", Map.of("type", "string",
 										"description", "An Apple Podcasts id (digits only), taken from find_podcast")),
-								"required", List.of("podcastId"))));
+								"required", List.of("podcastId"))),
+				new ToolSpec("recommend_from_catalog",
+						"Suggests channels and podcasts from Aram's own trusted list (reviewed, and right for the child's age) "
+								+ "for a topic the parent describes, such as phonics, bedtime stories, space or music. Use it when "
+								+ "the parent asks for suggestions or recommendations instead of naming a specific channel. Returns "
+								+ "up to 5 candidates that the parent must choose from. It never searches the web.",
+						Map.of("type", "object",
+								"properties", Map.of("topic", Map.of("type", "string",
+										"description", "The topic the parent wants suggestions for, in their own words, e.g. "
+												+ "\"phonics\" or \"bedtime stories podcast\"")),
+								"required", List.of("topic"))));
 	}
 
 	private static String systemInstruction(int childAge) {
 		return """
 				You are Aram's assistant. A parent is choosing YouTube channels and podcasts for their child, who is \
-				%d years old. You can only help add YouTube channels and podcasts to the child's list.
+				%d years old. You can only help add YouTube channels and podcasts to the child's list, either ones the parent names or \
+ones you suggest from Aram's trusted list.
 
 				How to work:
 				1. When the parent names a channel, call find_channel with exactly what they typed.
@@ -646,6 +723,11 @@ public class AgentService {
 				2b. For a podcast (the parent says podcast, show, or sends an Apple Podcasts link), use find_podcast and \
 				assess_podcast in the same way: a link or id can be assessed right away; a plain name returns cards the \
 				parent must pick from. A message like "I choose podcast 12345 (Name)" means they picked that show.
+				2c. If the parent asks for suggestions or recommendations on a topic without naming a channel (for example \
+"suggest a phonics channel" or "any bedtime podcasts?"), call recommend_from_catalog with their topic. The results come \
+from Aram's own reviewed list and are shown as cards: say so briefly, ask them to pick one, and do NOT call an assess tool \
+until they choose. Offer only what it returned; never suggest a channel or podcast from your own knowledge. If it finds \
+nothing, say so kindly and offer to check a specific channel or podcast if they send a name or link.
 				3. If assess_channel or assess_podcast says staged is true, tell them the channel is in their changes and they need to \
 				press Save to confirm. If it also says alreadyInAramList is true, mention that the channel was already \
 				in Aram's list and checked before, and is now waiting for their Save.

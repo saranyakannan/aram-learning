@@ -106,7 +106,8 @@ public class AdkAgentEngine {
 					.generateContentConfig(contentConfig())
 					.maxSteps(AgentService.MAX_MODEL_STEPS)
 					.tools(FunctionTool.create(adkTools, "find_channel"), FunctionTool.create(adkTools, "assess_channel"),
-							FunctionTool.create(adkTools, "find_podcast"), FunctionTool.create(adkTools, "assess_podcast"))
+							FunctionTool.create(adkTools, "find_podcast"), FunctionTool.create(adkTools, "assess_podcast"),
+							FunctionTool.create(adkTools, "recommend_from_catalog"))
 					.build();
 			Runner runner = new Runner(agent, APP_NAME, new InMemoryArtifactService(), sessions);
 
@@ -250,6 +251,12 @@ public class AdkAgentEngine {
 		public Map<String, Object> assess_podcast(
 				@Annotations.Schema(name = "podcastId", description = "An Apple Podcasts id (digits only), taken from find_podcast") String podcastId) {
 			return call("assess_podcast", "podcastId", podcastId);
+		}
+
+		@Annotations.Schema(name = "recommend_from_catalog", description = "Suggests channels and podcasts from Aram's own trusted list (reviewed, and right for the child's age) for a topic the parent describes, such as phonics, bedtime stories, space or music. Use it when the parent asks for suggestions or recommendations instead of naming a specific channel. Returns up to 5 candidates that the parent must choose from. It never searches the web.")
+		public Map<String, Object> recommend_from_catalog(
+				@Annotations.Schema(name = "topic", description = "The topic the parent wants suggestions for, in their own words, e.g. \"phonics\" or \"bedtime stories podcast\"") String topic) {
+			return call("recommend_from_catalog", "topic", topic);
 		}
 	}
 }

@@ -47,6 +47,7 @@ class AdkAgentEngineTest {
 	private ParentProfileService profiles;
 	private com.aram.backend.podcast.PodcastDirectory podcastDirectory;
 	private AgentModel customModel;
+	private CatalogSuggester suggester;
 	private AgentService service;
 
 	@BeforeEach
@@ -72,9 +73,11 @@ class AdkAgentEngineTest {
 			return new ChannelSafetyService.Screening(items.stream().map(ChannelSafetyService.ScreenItem::id).collect(java.util.stream.Collectors.toSet()), true);
 		});
 		AdkAgentEngine engine = new AdkAgentEngine(() -> llm, new AramProperties());
+		suggester = mock(CatalogSuggester.class);
 		service = new AgentService(customModel, new ChannelLinkParser(), lookup, mock(YoutubeVideoService.class), safety, staged,
 				profiles, catalog, new com.aram.backend.podcast.PodcastLinkParser(), podcastDirectory,
-				mock(com.aram.backend.podcast.PodcastFeedService.class), mock(AgentRateLimiter.class), engine, true);
+				mock(com.aram.backend.podcast.PodcastFeedService.class), mock(AgentRateLimiter.class), engine, true, null, false,
+				suggester);
 	}
 
 	private static SafetyAssessment assessment(boolean safe) {
@@ -137,6 +140,23 @@ class AdkAgentEngineTest {
 	}
 
 	@Test
+	void aTopicRequestIsAnsweredFromTheTrustedListAsCardsLikeInTheBuiltInLoop() {
+		ChannelFacts alphablocks = new ChannelFacts("UCaaaaaaaaaaaaaaaaaaaaaa", "Alphablocks", "@Alphablocks", "Letters.", null, null, null, null);
+		when(suggester.suggest(PARENT, "phonics")).thenReturn(new CatalogSuggester.Suggestions(
+				new com.aram.backend.model.Tag("phonics-reading", "Phonics & Reading", "spellcheck"), false, false,
+				List.of(new CatalogSuggester.Pick(alphablocks, "Similar to Bluey", List.of("phonics-reading")))));
+		llm.script(call("recommend_from_catalog", Map.of("topic", "phonics")), text("Here is one from Aram's list."));
+
+		AgentService.AgentReply reply = service.respond(PARENT, "suggest a phonics channel", List.of());
+
+		assertThat(reply.candidates()).containsExactly(alphablocks);
+		assertThat(llm.calls).isEqualTo(2);
+		verify(safety, never()).assess(any(), any(), anyInt());
+		verify(customModel, never()).nextStep(any(), any(), any());
+		assertThat(llm.requests.get(0).getSystemInstructions().toString()).contains("recommend_from_catalog");
+	}
+
+	@Test
 	void theModelCannotChooseWhoTheParentIsOrHowOldTheChildIs() {
 		llm.script(text("Hello."));
 
@@ -144,7 +164,7 @@ class AdkAgentEngineTest {
 
 		String declared = llm.requests.get(0).tools().values().stream()
 				.map(tool -> tool.declaration().map(Object::toString).orElse("")).reduce("", String::concat);
-		assertThat(declared).contains("find_channel", "assess_channel", "find_podcast", "assess_podcast");
+		assertThat(declared).contains("find_channel", "assess_channel", "find_podcast", "assess_podcast", "recommend_from_catalog");
 		assertThat(declared).doesNotContain("parentId").doesNotContain("childAge");
 		assertThat(llm.requests.get(0).getSystemInstructions().toString()).contains("4 years old");
 	}

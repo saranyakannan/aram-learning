@@ -6,7 +6,7 @@ Gemini does the vetting and explains its reasoning; the parent always has the fi
 ## What it does
 
 - **Parent portal.** The parent signs in, adds the child's first name and birth month, picks interests, and builds the child's library from suggestions or by chatting to **Aram** (below). Nothing is added until the parent presses **Save**.
-- **Aram Agent.** A chat built on Google's Agent Development Kit with Gemini on Vertex AI. Paste a YouTube link, an @handle, an Apple Podcasts link, or just a name: the agent finds it, screens look-alike search results for the child's age,
+- **Aram Agent.** A chat built on Google's Agent Development Kit with Gemini on Vertex AI. Paste a YouTube link, an @handle, an Apple Podcasts link, or just a name: the agent finds it (or ask it to suggest a channel or podcast on a topic, and it offers cards from Aram's own reviewed list), screens look-alike search results for the child's age,
   runs a strict child-safety check, and stages it for the parent's approval. Conversations are kept on the server and can be resumed or cleared with "New chat".
 - **Kid Space.** The child's home: top picks, a shelf per channel and podcast, a video watch page and a podcast player. Only approved sources are ever served, and the backend enforces that (a video id typed into the address bar must belong to an approved channel).
 - **Recommendations.** "Similar to" suggestions come from embeddings of public catalog text computed in BigQuery, applied only after the age and safety eligibility filter.
